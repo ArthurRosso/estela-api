@@ -1,30 +1,57 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const app = express()
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
 
-const migrations = require('./migrations')
-const medico = require('./medico')
-const port = 3000
+const { UserEstela } = require('./app/models');
+const { Medico } = require('./app/models');
 
-app.use(migrations.createDatabase)
+const port = 3000;
 
-app.use(bodyParser.json())
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-)
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-app.get('/', (request, response) => {
-  response.json({ info: 'GoBov API' })
-})
+//UserEstela.create({ name: 'Admin', email: 'admin@example.com.br', password: '123456', createdAt: Date.now(), updatedAt: Date.now() });
 
-app.get('/medicos', medico.getMedicos)
-app.get('/medicos/:id', medico.getMedicoById)
-app.post('/medicos', medico.createMedico)
-app.put('/medicos/:id', medico.updateMedico)
-app.delete('/medicos/:id', medico.deleteMedico)
+app.get('/', (req, res) => {
+    res.json({ info: 'Estela API' })
+});
+
+app.post('/register', async (req, res) => {
+    const user = await UserEstela.create(req.body);
+    res.json(user);
+});
+
+app.get('/userInfo/:id', async (req, res) => {
+    const id = parseInt(req.params.id)
+
+    const user = await UserEstela.findByPk(id) 
+    
+    res.json(user);
+});
+
+app.put('/userUpdate/:id', async (req, res) => {
+    const id = parseInt(req.params.id)
+
+    await User.destroy({
+        where: {
+          id: id
+        }
+    });
+
+    const user = await UserEstela.create(req.body);
+    res.json(user);
+});
+
+app.delete('/delete/:id', (req, res) => {
+    const id = parseInt(req.params.id)
+
+    await User.destroy({
+        where: {
+          id: id
+        }
+    });
+});
 
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)
-})
+});
